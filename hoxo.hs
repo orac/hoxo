@@ -1,5 +1,6 @@
 import Data.List
 import Data.Char
+import System.IO
 
 data Cell = X | O | Empty
     deriving (Eq, Ord)
@@ -117,3 +118,5 @@ humanFirst b input = show b ++ "> " ++ ifGameContinues b (\x -> case applyInput 
 ioLoop :: String -> String
 ioLoop inputs = humanFirst newBoard inputs ++ "\n"
 
+main :: IO ()
+main = hSetBuffering stdin NoBuffering >> interact ioLoop
