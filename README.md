@@ -7,6 +7,10 @@ not in the expectation that anyone will actually want to use it, but in case
 anyone is curious. Please don't use it as a teaching aid as it is quite
 obviously newbie code.
 
+Compile the code with `ghc hoxo.hs`, or use ghci to `:load` it if you want more
+of a play around. I didn't think it was worth providing a build-system for a
+one-file project.
+
 ## The model
 
 I decided to model the board as a list of lists. Each element is a tri-state
