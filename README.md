@@ -9,7 +9,9 @@ obviously newbie code.
 
 Compile the code with `ghc hoxo.hs`, or use ghci to `:load` it if you want more
 of a play around. I didn't think it was worth providing a build-system for a
-one-file project.
+one-file project. There are paltry unit tests for the internal functions, which I
+wrote more to learn about QuickCheck than to test the code. You can run them
+from ghci by calling `runtests`.
 
 ## The model
 

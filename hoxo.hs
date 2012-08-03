@@ -1,7 +1,13 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 import Data.List
 import Data.Char
 import System.IO
+import Test.QuickCheck
+import Test.QuickCheck.All
 
+
+-- | A cell in the board.
 data Cell = X | O | Empty
     deriving (Eq, Ord)
 
@@ -10,23 +16,56 @@ instance Show Cell where
     show O = "O"
     show Empty = " "
 
+prop_cell_show_length :: Cell -> Bool
+prop_cell_show_length c = length (show c) == 1
+
+instance Arbitrary Cell where
+    arbitrary = elements [X, O, Empty]
+
+-- | The opposing player of a cell: only for occupied cells.
 opponent :: Cell -> Cell
 opponent X = O
 opponent O = X
 opponent _ = undefined
 
+-- | A board is a list of lists of cells, 3x3 in size.
 data Board = Board [[Cell]]
     deriving (Eq)
 
+-- Print out a board in the traditional line-drawing style.
 instance Show Board where
     show (Board b) = '\n' : (intercalate "\n-+-+-\n" [intercalate "|" (map show row) | row <- b] ++ "\n")
 
+instance Arbitrary Board where
+    arbitrary = do a <- vector 3
+                   b <- vector 3
+                   c <- vector 3
+                   return $ Board [a, b, c]
+
+-- | The list of all cells, in no particular order, in a board.
+cells :: Board -> [Cell]
+cells (Board b) = concat b
+
+prop_cells b = length (cells b) == 9
+
+-- | Generate a fresh, empty board.
 newBoard = Board (replicate 3 (replicate 3 Empty))
 
+-- | A list containing all the spans of a board; that is, each row, column, and diagonal crossing the whole board.
 spans :: Board -> [[Cell]]
 spans (Board b) = b ++ transpose b ++ diags
                     where diags = [[b!!i!!i | i <- [0..(length b) - 1]],[b!!i!!((length b)-i-1) | i <- [0..(length b) - 1]]]
 
+prop_spans_length b = length (spans b) == 8
+
+prop_spans_row_length b@(Board b') = all (\r -> length r == rowlength) (spans b)
+                                     where rowlength = length b'
+
+-- | A score representing the desirability of the board situation. The first
+-- element gives the number of winning lines (i.e. three of the same symbol);
+-- the second element is the number of lines containing two of the same symbol
+-- and a space; the third, one of the same symbol and two spaces. Wins for X
+-- are positive and wins for O negative.
 type Score = (Int,Int,Int)
 
 score :: Board -> Score
@@ -49,6 +88,8 @@ movesFor cell (Board b) = let movesInRow cell []         = []
                               movesInRows cell []         = []
                               movesInRows cell (row:rows) = (map (:rows) (movesInRow cell row)) ++ (map (row:) (movesInRows cell rows))
                           in map Board (movesInRows cell b)
+
+prop_movesFor_length player b = length (movesFor player b) == length (filter (== Empty) (cells b))
 
 compareScores :: Cell -> Score -> Score -> Ordering
 compareScores X x y = compare x y
@@ -118,5 +159,6 @@ humanFirst b input = show b ++ "> " ++ ifGameContinues b (\x -> case applyInput 
 ioLoop :: String -> String
 ioLoop inputs = humanFirst newBoard inputs ++ "\n"
 
+runtests = $quickCheckAll
 main :: IO ()
 main = hSetBuffering stdin NoBuffering >> interact ioLoop
