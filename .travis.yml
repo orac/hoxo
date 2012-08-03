@@ -1,0 +1,3 @@
+---
+language: haskell
+script: runghc -main-is --ghc-arg=runtests

@@ -159,6 +159,10 @@ humanFirst b input = show b ++ "> " ++ ifGameContinues b (\x -> case applyInput 
 ioLoop :: String -> String
 ioLoop inputs = humanFirst newBoard inputs ++ "\n"
 
-runtests = $quickCheckAll
+runtests :: IO ()
+runtests = do
+    $quickCheckAll
+    return ()
+
 main :: IO ()
 main = hSetBuffering stdin NoBuffering >> interact ioLoop
