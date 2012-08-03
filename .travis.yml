@@ -1,4 +1,4 @@
 ---
 language: haskell
-script: runghc -main-is --ghc-arg=runtests
+script: runghc -main-is --ghc-arg=runtests hoxo.hs
 install: 'true'
