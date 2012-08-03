@@ -95,6 +95,13 @@ compareScores :: Cell -> Score -> Score -> Ordering
 compareScores X x y = compare x y
 compareScores O x y = compare y x
 
+prop_compareScores_antisymmetric s1 s2 = compareScores X s1 s2 == compareScores O s2 s1
+prop_compareScores_reflexive s = (compareScores X s s == EQ) && (compareScores O s s == EQ)
+prop_compareScores_transitive s1 s2 s3 = case (compareScores X s1 s2) of
+                                            EQ -> (compareScores X s1 s3) == (compareScores X s2 s3)
+                                            LT -> ((compareScores X s2 s3) == GT) || ((compareScores X s1 s3) == LT)
+                                            GT -> ((compareScores X s2 s3) == LT) || ((compareScores X s1 s3) == GT)
+
 bestMoveFor :: Cell -> Board -> (Board,Score)
 bestMoveFor player b = let candidates = movesFor player b
                            compareOutcomes X x y = score x `compare` score y
