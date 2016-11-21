@@ -1,4 +1,5 @@
 ---
 language: haskell
 script: runghc -main-is --ghc-arg=runtests hoxo.hs
-install: 'true'
+install:
+  - cabal install QuickCheck
